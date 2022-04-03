@@ -1,0 +1,49 @@
+name: go-getting-started
+
+# The build section defines how to build the images of your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#build
+build:
+
+  # You can use the following env vars to refer to this image in your deploy commands:
+  #  - OKTETO_BUILD_OKTETO-GO-HELLO_REGISTRY: image registry
+  #  - OKTETO_BUILD_OKTETO-GO-HELLO_REPOSITORY: image repo
+  #  - OKTETO_BUILD_OKTETO-GO-HELLO_IMAGE: image name
+  #  - OKTETO_BUILD_OKTETO-GO-HELLO_TAG: image tag
+  okteto-go-hello:
+    context: .
+    dockerfile: Dockerfile
+
+# The deploy section defines how to deploy your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#deploy
+deploy:
+  - kubectl apply -f k8s.yml
+
+# The dependencies section defines other git repositories to be deployed as part of your development environment
+# More info: https://www.okteto.com/docs/reference/manifest/#dependencies
+# dependencies:
+#   - https://github.com/okteto/sample
+
+
+# The dev section defines how to activate a development container
+# More info: https://www.okteto.com/docs/reference/manifest/#dev
+dev:
+  hello-world:
+    image: okteto/golang:1
+    command: bash
+    workdir: /app
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
+      fsGroup: 0
+      capabilities:
+        add:
+          - SYS_PTRACE
+    sync:
+      - .:/app
+    forward:
+      - 2345:2345
+      - 8080:8080
+    volumes:
+      - /go/pkg/
+      - /root/.cache/go-build/
+
